@@ -17,18 +17,18 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const prompt = body?.prompt;
+    // Recibimos el arreglo contents con todo el historial
+    const contents = body?.contents;
 
-    if (!prompt) {
-      return res.status(400).json({ error: 'El prompt es requerido' });
+    if (!contents || !Array.isArray(contents)) {
+      return res.status(400).json({ error: 'El historial (contents) es requerido' });
     }
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.6-flash',
-      contents: prompt,
+      contents: contents,
       config: {
-        // Define aquí el rol o tono de tu IA
-        systemInstruction: "Eres un asistente virtual amigable, analitico y experto en tecnología y procesos operativos de logistica y cadena de suministro. Respondes de forma clara, breve y logica.",
+        systemInstruction: "Eres un asistente virtual súper amigable, divertido y experto en tecnología. Respondes de forma clara, breve y utilizas emojis.",
       }
     });
 
