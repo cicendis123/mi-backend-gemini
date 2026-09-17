@@ -8,8 +8,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt } = req.body;
-    
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const prompt = body?.prompt;
+
     if (!prompt) {
       return res.status(400).json({ error: 'El prompt es requerido' });
     }
@@ -19,8 +20,8 @@ export default async function handler(req, res) {
       contents: prompt,
     });
 
-    res.status(200).json({ result: response.text });
+    return res.status(200).json({ result: response.text });
   } catch (error) {
-    res.status(500).json({ error: 'Error al procesar la solicitud' });
+    return res.status(500).json({ error: error.message || 'Error al procesar la solicitud' });
   }
 }
