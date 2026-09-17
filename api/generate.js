@@ -3,12 +3,10 @@ import { GoogleGenAI } from '@google/genai';
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default async function handler(req, res) {
-  // Encabezados para permitir CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Responder a la petición pre-flight de CORS
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -28,6 +26,10 @@ export default async function handler(req, res) {
     const response = await ai.models.generateContent({
       model: 'gemini-3.6-flash',
       contents: prompt,
+      config: {
+        // Define aquí el rol o tono de tu IA
+        systemInstruction: "Eres un asistente virtual amigable, analitico y experto en tecnología y procesos operativos de logistica y cadena de suministro. Respondes de forma clara, breve y logica.",
+      }
     });
 
     return res.status(200).json({ result: response.text });
