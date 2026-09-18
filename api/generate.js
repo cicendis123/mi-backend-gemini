@@ -2,6 +2,9 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+// Le indica a Vercel que mantenga la conexión viva hasta por 60 segundos
+export const maxDuration = 60;
+
 export default async function handler(req, res) {
   // Configuración de cabeceras CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
