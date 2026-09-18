@@ -4,6 +4,15 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export const maxDuration = 60;
 
+// Desactiva el bodyParser por defecto si Vercel bloquea la entrada
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '4.5mb',
+    },
+  },
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -38,6 +47,7 @@ export default async function handler(req, res) {
 
     return res.end();
   } catch (error) {
-    return res.status(500).json({ error: error.message || 'Error al procesar la solicitud' });
+    console.error("Error en servidor:", error);
+    return res.status(500).json({ error: error.message || 'Error en el backend' });
   }
 }
