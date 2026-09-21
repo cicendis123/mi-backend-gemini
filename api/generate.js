@@ -30,22 +30,24 @@ export default async function handler(req, res) {
     }
 
     let responseStream;
-    let retries = 3;
+    let retries = 4; // Aumentado a 4 intentos
+    let delay = 2000; // 2 segundos de espera inicial
 
     while (retries > 0) {
       try {
         responseStream = await ai.models.generateContentStream({
-          model: 'gemini-3.6-flash', // Modelo actualizado y requerido por la API
+          model: 'gemini-3.6-flash',
           contents: contents,
           config: {
             systemInstruction: "Eres un asistente virtual amigable y experto en tecnología. Respondes de forma clara, directa, breve y utilizas emojis.",
           }
         });
-        break;
+        break; // Éxito
       } catch (err) {
         retries--;
         if (retries === 0) throw err;
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay += 1000; // Incremento progresivo
       }
     }
 
@@ -61,7 +63,7 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error("Error en backend:", error);
     
-    const isOverloaded = error.message?.includes('503') || error.message?.includes('high demand');
+    const isOverloaded = error.message?.includes('503') || error.message?.includes('high demand') || error.status === 503;
     const userMessage = isOverloaded 
       ? "Los servidores de Google están experimentando alta demanda en este momento. Por favor, reintenta en un par de segundos." 
       : (error.message || 'Error interno del servidor');
