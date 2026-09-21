@@ -33,22 +33,21 @@ export default async function handler(req, res) {
     let retries = 3;
     let delay = 1000;
 
-    // Bucle de reintentos con espera exponencial
     while (retries > 0) {
       try {
         responseStream = await ai.models.generateContentStream({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash', // <--- CAMBIADO A UN MODELO ESTÁNDAR VÁLIDO
           contents: contents,
           config: {
             systemInstruction: "Eres un asistente virtual amigable y experto en tecnología. Respondes de forma clara, directa, breve y utilizas emojis.",
           }
         });
-        break; // Éxito en la conexión
+        break; 
       } catch (err) {
         retries--;
         if (retries === 0) throw err;
         await new Promise(resolve => setTimeout(resolve, delay));
-        delay *= 2; // Duplica la espera en cada intento (1s -> 2s -> 4s)
+        delay *= 2; 
       }
     }
 
