@@ -29,8 +29,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'El historial (contents) es requerido' });
     }
 
-    // Lista de modelos a intentar en orden de preferencia
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-pro'];
+    // Nombres actualizados según la API activa
+    const modelsToTry = ['gemini-3.1-pro-preview', 'gemini-3-flash-preview'];
     let responseStream = null;
     let lastError = null;
 
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
               systemInstruction: "Eres un asistente virtual amigable y experto en tecnología. Respondes de forma clara, directa, breve y utilizas emojis.",
             }
           });
-          break; // Conexión exitosa
+          break;
         } catch (err) {
           lastError = err;
           retries--;
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
         }
       }
 
-      if (responseStream) break; // Si funcionó, salimos del bucle de modelos
+      if (responseStream) break;
     }
 
     if (!responseStream) {
