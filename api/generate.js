@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     while (retries > 0) {
       try {
         responseStream = await ai.models.generateContentStream({
-          model: 'gemini-1.5-flash', // <--- CAMBIADO A UN MODELO ESTÁNDAR VÁLIDO
+          model: 'gemini-2.5-flash', // <--- NOMBRE CORRECTO PARA @google/genai
           contents: contents,
           config: {
             systemInstruction: "Eres un asistente virtual amigable y experto en tecnología. Respondes de forma clara, directa, breve y utilizas emojis.",
