@@ -2,7 +2,8 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export const maxDuration = 60;
+// Limite de duración de la función en Vercel
+export const maxDuration = 10; 
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -29,27 +30,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'El historial (contents) es requerido' });
     }
 
-    let responseStream;
-    let retries = 4; // Aumentado a 4 intentos
-    let delay = 2000; // 2 segundos de espera inicial
-
-    while (retries > 0) {
-      try {
-        responseStream = await ai.models.generateContentStream({
-          model: 'gemini-3.6-flash',
-          contents: contents,
-          config: {
-            systemInstruction: "Eres un asistente virtual amigable y experto en tecnología. Respondes de forma clara, directa, breve y utilizas emojis.",
-          }
-        });
-        break; // Éxito
-      } catch (err) {
-        retries--;
-        if (retries === 0) throw err;
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay += 1000; // Incremento progresivo
+    const responseStream = await ai.models.generateContentStream({
+      model: 'gemini-3.6-flash',
+      contents: contents,
+      config: {
+        systemInstruction: "Eres un asistente virtual amigable y experto en tecnología. Respondes de forma clara, directa, breve y utilizas emojis.",
       }
-    }
+    });
 
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
@@ -63,9 +50,15 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error("Error en backend:", error);
     
+    // Si la respuesta ya comenzó a transmitirse, cerramos el stream
+    if (res.headersSent) {
+      res.write("\n\n[Error al generar la respuesta completa]");
+      return res.end();
+    }
+
     const isOverloaded = error.message?.includes('503') || error.message?.includes('high demand') || error.status === 503;
     const userMessage = isOverloaded 
-      ? "Los servidores de Google están experimentando alta demanda en este momento. Por favor, reintenta en un par de segundos." 
+      ? "Los servidores de Google están experimentando alta demanda. Por favor, intenta de nuevo en unos segundos." 
       : (error.message || 'Error interno del servidor');
 
     return res.status(500).json({ error: userMessage });
